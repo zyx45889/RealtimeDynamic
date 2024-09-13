@@ -12,8 +12,6 @@ by Yixin Zeng, Zoubin Bi, Mingrui Yin, Xiang Feng, Kun Zhou and Hongzhi Wu*.
 
 We propose a novel framework for real-time acquisition and reconstruction of temporally-varying 3D phenomena with high quality. Using as few as 6 pre-optimized structured light patterns, we capture and reconstruct dynamic 3D volumes from corresponding image measurements at different views, with a lightweight projector-camera setup.
 
-We utilize a auto-encoder pipeline. Starting from a 3D density volume, we first project the light patterns (i.e., weights in the encoder) to the volume. For each valid pixel at each camera view, we send all its measurements along with the resampled local illumination conditions to a decoder, to predict a 1D density distribution over the corresponding camera ray. All density distributions for one camera are then collected and resampled into a single 3D volume. In the multi-camera case, the predicted volumes for each camera are fused to obtain the final result.
-
 <div align="center">
 <img src="./imgs/netpipeline.jpg" alt="netpipeline" width="70%"/>
 </div>
