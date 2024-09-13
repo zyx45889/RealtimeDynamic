@@ -11,11 +11,15 @@ save_intvel=3
 
 def gen_data(dataid):
     start_time=datetime.datetime.now()
+    # sim steps =60, save_intvel=3, so there's 20 volumes saved for each sim
     steps = 60
+    # from that step, stop to create/inflow new smoke 
     stop_step = 40
+    # set the data path
     basePath = './data/'+str(dataid)
     if not os.path.exists(basePath):
         os.mkdir(basePath)
+    # set the resolution
     res = 128
     blurSig = float(2) / 3.544908
     dim = 3
