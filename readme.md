@@ -1,4 +1,4 @@
-## Real-time Dynamic
+# Real-time Dynamic
 
 This is the code for CVPR2024 paper:
 
@@ -8,7 +8,7 @@ by Yixin Zeng, Zoubin Bi, Mingrui Yin, Xiang Feng, Kun Zhou and Hongzhi Wu*.
 
 [Project Page](https://svbrdf.github.io/publications/realtimedynamic/project.html)
 
-### Introduction
+## Introduction
 
 We propose a novel framework for real-time acquisition and reconstruction of temporally-varying 3D phenomena with high quality. The core of our framework is a deep neural network, with an encoder that directly maps to the structured illumination during acquisition, a decoder that predicts a 1D density distribution from single-pixel measurements under the optimized lighting, and an aggregation module that combines the predicted densities for each camera into a single volume. It enables the automatic and joint optimization of physical acquisition and computational reconstruction, and is flexible to adapt to different hardware configurations. Using as few as 6 pre-optimized structured light patterns, we capture and reconstruct high-quality, dynamic 3D volumes from corresponding image measurements at different views, with a lightweight projector-camera setup. We achieve a performance of 40 volumes per second for both acquisition and reconstruction.
 
@@ -26,11 +26,11 @@ Our network consists of 3 parts:
 
 <img src="./imgs/decoder.jpg" alt="decoder" style="zoom:10%;" />
 
-### Data Generation
+## Data Generation
 
 We generate our data with mantaflow, based the code from  [tempoGAN](https://github.com/thunil/tempoGAN).
 
-#### Installation
+### Installation
 
 - h5py
 - python-numpy
@@ -58,9 +58,9 @@ Then use the following command to generate data:
 
 It takes about 3.5 hours to generate all the data.
 
-### Training
+## Training
 
-#### Environment
+### Environment
 
 - pytorch-cuda
 - numpy
@@ -70,7 +70,7 @@ It takes about 3.5 hours to generate all the data.
 - opencv-python
 - annoy
 
-#### Train
+### Train
 
 After wandb login, run the following command with multiple gpus:
 
@@ -78,7 +78,7 @@ After wandb login, run the following command with multiple gpus:
 CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 train128_cal3.py
 ```
 
-#### Test
+### Test
 
 Run the following command:
 
@@ -88,7 +88,7 @@ python predict.py
 
 The result is in `./our_result/`.
 
-### Apply to Your Device
+## Apply to Your Device
 
 For specific real-world device, the ray trace information used for resample process in training and testing need to be precomputed before the training. The ray trace information for our device is provided in `./ray_trace_info`.
 
