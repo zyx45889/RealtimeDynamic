@@ -9,7 +9,7 @@ import h5py
 from pathlib import Path
 from net.net import MyNet
 
-name="6pattern_previousdata"
+name="6pattern"
 modelpath = './checkpoints/checkpoints_'+name+'/'
 if not os.path.exists(modelpath):
     os.mkdir(modelpath)
@@ -26,7 +26,7 @@ miu1=0.5                # training loss param
 miu2=0.5
 miu3=0.5
 donorm=0                # use normalized measurement or not
-datapath="../laserbeam/data128"      # data path
+datapath="./data"      # data path
 
 def reademd(filename):
     with h5py.File(filename, 'r') as f:
