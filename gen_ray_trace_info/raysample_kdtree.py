@@ -6,6 +6,7 @@ import datetime
 import torch
 import h5py
 
+# dump ply points for debug visualization
 def dump_points(
     points: np.array,  # [N, 3]
     dump_fp: str,
@@ -27,7 +28,6 @@ def cal_index(x,step1,step2,step3):
     x2=int(x/step3)
     x3=int(x2/step2)
     x2=x2%step2
-    # x3=x3%step1
     return [x3,x2,x1]
 
 def save_data(filename,density):
@@ -58,7 +58,6 @@ def cal_RT(E_mat):
 def cal_E(rvec,tvec):
     R_mat = cv.Rodrigues(rvec)[0]
     E = np.hstack((R_mat, tvec.reshape(3,1)))
-    # print(E.shape)
     return np.vstack((E, np.array([[0.,0.,0.,1.]])))
 
 def cal_extrinsic_avg(E_mat):
@@ -66,7 +65,6 @@ def cal_extrinsic_avg(E_mat):
     tvec_avg=np.zeros([1,3],dtype=np.float64)
     for i in range(5):
         rvec,tvec=cal_RT(E_mat[i])
-        # print(rvec.shape,rvec_avg.shape)
         rvec_avg+=rvec
         tvec_avg+=tvec
     return cal_E(rvec_avg/5,tvec_avg/5)
@@ -74,9 +72,7 @@ def cal_extrinsic_avg(E_mat):
 def loadE(path):
     calib_results = cv.FileStorage(path, cv.FileStorage_READ)
     E_rvec=calib_results.getNode('E_rvec').mat().mean(axis=0)
-    # print(E_rvec)
     E_tvec=calib_results.getNode('E_tvec').mat().mean(axis=0)
-    # print(E_tvec)
     return cal_E(E_rvec,E_tvec)
 
 parser = argparse.ArgumentParser(description='raysample kdtree')
@@ -95,7 +91,9 @@ hend=args.h2
 camid=args.cam
 dobuildtree=args.bt
 
+# volume resolution
 size=128
+# real-world volume size in mm
 start = 0
 end = 96
 sample_num = 20
@@ -104,6 +102,7 @@ volume_grid = np.mgrid[start:end:step, start:end:step, start:end:step].reshape(3
 volume_grid = volume_grid.transpose(1,0)
 
 proj2vol = np.eye(4,4, dtype=np.float32)
+# real-world projector location with respect to volume center
 proj2vol[:3,3] = -np.array([0.5,-60.5,555.5])
 no_proj=2
 no_cam0=2
@@ -154,6 +153,7 @@ if camid==-1:  # projector
     camera_matrix=proj_matrix
     dist_cam=dist_proj
 
+# camera center in volume coordinate
 origin_rot=np.asarray([0,0,0,1])
 origin_rot=cam2vol@origin_rot
 origin=origin_rot[0:3].reshape(1,3)
@@ -180,7 +180,7 @@ def cal_dist(x,y):
     return (x*y).sum()/np.linalg.norm(x)/np.linalg.norm(y)
 
 ANN_tree = AnnoyIndex(3, 'angular')
-ANN_tree.load(path+'ANN_tree'+str(camid)+'.ann') # super fast, will just mmap the file
+ANN_tree.load(path+'ANN_tree'+str(camid)+'.ann') 
 
 wlist=[]
 hlist=[]
@@ -199,7 +199,6 @@ for w in range(wstart,wend):
         # h=0-1440
         tempxyzlist=[]
         tempxyzid=[]
-        # start_time = datetime.datetime.now()
         rand_s = np.random.rand(sample_num, 2)
         delta = rand_s
         x_0, y_0 = np.array([h, w], dtype=np.float32)
@@ -215,20 +214,14 @@ for w in range(wstart,wend):
         tempxyzlist=[]
         tempxyzid=[]
         for s in range(sample_num):
-            # starttime=datetime.datetime.now()
             index, dist = ANN_tree.get_nns_by_vector(dir[s]/np.linalg.norm(dir[s]), n, search_k, include_distances=True)
-            # end_time = datetime.datetime.now()
-            # print("search time:",end_time-starttime)
             distnp=np.asarray(dist)
             cosdist=np.sqrt(1-distnp*distnp)
             sindist=distnp
-            # starttime=datetime.datetime.now()
             for i in range(len(dist)):
                 if(cosdist[i]>threshold):
                     idx=cal_index(index[i],size,size,size)
-                    # zvalue=idx[2]*step-end/2
                     zvalue=idx[2]*step-end/2-origin[0,2]
-                    # print(zvalue)
                     weight=zvalue*sindist[i]
                     if(weight>=diag):
                         continue
@@ -249,7 +242,6 @@ for w in range(wstart,wend):
             
 
 end_time = datetime.datetime.now()
-# print("time:",end_time-start_time_total)
 indices = torch.tensor([wlist,hlist,xlist,ylist,zlist])
 values = torch.tensor(valuelist, dtype=torch.float32)
 if camid!=-1:
