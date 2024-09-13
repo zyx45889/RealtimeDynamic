@@ -23,7 +23,7 @@ Our network consists of 3 parts:
 - The aggregation module take as input the 3D volumes predicted by the decoder for each camera, and fuse the multi-view information to output a high-quality volume with a 3D UNet.
 
 <div align="center">
-<img src="./imgs/decoder.jpg" alt="decoder" width="70%" />
+<img src="./imgs/decoder.jpg" alt="decoder" width="50%" />
 </div>
 
 ## Data Generation
