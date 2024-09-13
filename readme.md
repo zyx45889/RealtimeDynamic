@@ -12,11 +12,15 @@ by Yixin Zeng, Zoubin Bi, Mingrui Yin, Xiang Feng, Kun Zhou and Hongzhi Wu*.
 
 We propose a novel framework for real-time acquisition and reconstruction of temporally-varying 3D phenomena with high quality. The core of our framework is a deep neural network, with an encoder that directly maps to the structured illumination during acquisition, a decoder that predicts a 1D density distribution from single-pixel measurements under the optimized lighting, and an aggregation module that combines the predicted densities for each camera into a single volume. It enables the automatic and joint optimization of physical acquisition and computational reconstruction, and is flexible to adapt to different hardware configurations. Using as few as 6 pre-optimized structured light patterns, we capture and reconstruct high-quality, dynamic 3D volumes from corresponding image measurements at different views, with a lightweight projector-camera setup. We achieve a performance of 40 volumes per second for both acquisition and reconstruction.
 
-<img src="./imgs/teaser.jpg" alt="teaser" style="zoom: 15%;" />
+<div align="center">
+<img src="./imgs/teaser.jpg" alt="teaser" width="70%"/>
+</div>
 
 We utilize a auto-encoder pipeline. Starting from a synthetic/physical 3D density volume, we first project the pre-optimized light patterns (i.e., weights in the encoder) to the volume. For each valid pixel at each camera view, we send all its measurements along with the resampled local illumination conditions to a decoder, to predict a 1D density distribution over the corresponding camera ray. All density distributions for one camera are then collected and resampled into a single 3D volume. In the multi-camera case, the predicted volumes for each camera are fused to obtain the final result.
 
-<img src="./imgs/netpipeline.jpg" alt="netpipeline" style="zoom: 15%;" />
+<div align="center">
+<img src="./imgs/netpipeline.jpg" alt="netpipeline" width="70%"/>
+</div>
 
 Our network consists of 3 parts:
 
@@ -24,7 +28,9 @@ Our network consists of 3 parts:
 - Our decoder consists of 4 fc layers and works on a per-pixel basis.  It takes as input the measurements at the same pixel location and the corresponding local incident lighting, and outputs a 1D density distribution along the corresponding camera ray. 
 - In the multi-camera case, we take as input the 3D volumes predicted by the decoder for each camera, and fuse the multi-view information to output a high-quality volume with a 3D UNet.
 
-<img src="./imgs/decoder.jpg" alt="decoder" style="zoom:10%;" />
+<div align="center">
+<img src="./imgs/decoder.jpg" alt="decoder" width="70%" />
+</div>
 
 ## Data Generation
 
