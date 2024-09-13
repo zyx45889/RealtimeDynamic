@@ -1,0 +1,9 @@
+checkpoints
+data
+mantaflow
+*.bin
+*.bmp
+*.emd
+*.yml
+ray_trace_info
+wandb
