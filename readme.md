@@ -104,6 +104,6 @@ Take camera-projector device for example, with calibrated camera and projector(a
 
 The camera and projector calibration information of ours is provided in `./ray_trace_info/intrinsic_proj_cam_42000.yml`. 
 
-The volume location with respect to the projector in line 109 of `./gen_ray_trace_info/raysample_kdtree.py` is roughly estimated from real scene. The `hmin` and `hmax` parameter in `./gen_ray_trace_info/raysample_rescale.py` and  `./gen_ray_trace_info/raysample_rescale_subprocess.py` is roughly estimated from the volume location in the real photos taken by the camera. The `cpunum` parameter in `./gen_ray_trace_info/raysample_rescale_subprocess.py` and `./gen_ray_trace_info/raysample_kdtree_subprocess.py` is decided by the number of cpu in your machine.
+The volume location with respect to the projector in line 106 of `./gen_ray_trace_info/raysample_kdtree.py` is roughly estimated from real scene. The `hmin` and `hmax` parameter in `./gen_ray_trace_info/raysample_rescale.py` and  `./gen_ray_trace_info/raysample_rescale_subprocess.py` is roughly estimated from the volume location in the real photos taken by the camera. The `cpunum` parameter in `./gen_ray_trace_info/raysample_rescale_subprocess.py` and `./gen_ray_trace_info/raysample_kdtree_subprocess.py` is decided by the number of cpu in your machine.
 
 It takes about 2 hour to finish the precomputation.
