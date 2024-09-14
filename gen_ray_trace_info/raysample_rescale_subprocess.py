@@ -3,6 +3,8 @@ import numpy as np
 import datetime
 import torch
 import cv2
+# given cpu num, do rescale in small blocks in dynamic parallelism
+# then merge information in blocks into one tensor
 
 cam_idx_gl=[-1,0,1,2]
 for camid in cam_idx_gl:
@@ -94,6 +96,7 @@ for camid in cam_idx_gl:
                     print("start on:",k)
                     break
 
+    # wait until all the rescale is done
     while(cpustatues.sum()!=0):
         if cpustatues.sum()<cpunum:
                     break
