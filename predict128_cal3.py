@@ -27,6 +27,7 @@ def normalization(x):
         return x/(x.min()+1e-7)
     return (x-x.min())/(x.max()-x.min()+1e-7)
 
+# normalization function for light pattern
 def pattern_normalization(x):
     x=F.sigmoid(x)
     x=x/torch.linalg.norm(x)
@@ -81,6 +82,7 @@ def predict_net(encoder,decoder,device):
             volume=volume.to(device=device, dtype=torch.float32)
             measurement=encoder(volume).reshape((batch_size,patternnum*cameranum,size[0],size[1]))
             if donorm:
+                # record the max value to rescale predicted volume density back to real scale
                 recmax=measurement.max()
                 measurement=measurement/recmax
             v1,v2,v3,volume_pred=decoder(measurement,encoder.light_pattern)
