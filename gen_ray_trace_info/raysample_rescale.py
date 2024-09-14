@@ -3,6 +3,9 @@ import torch
 import cv2
 import datetime
 import argparse
+# rescale the ray trace information in each block into our desired size
+# fetch the information of our interested area
+# result: ray trace info. in interested 128x128 image area and 128x128x128 volume area
 
 parser = argparse.ArgumentParser(description='raysample rescale')
 parser.add_argument('--b1','-b1',type=int, default = 0,required=True,help="batch id 1")
