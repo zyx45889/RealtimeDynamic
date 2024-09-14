@@ -53,6 +53,7 @@ cmake .. -DNUMPY=ON -DOPENMP=ON
 Then use the following command to generate data:
 
 ```
+mkdir data
 ./mantaflow/mantaflow-master/build/manta ./gen_data/gen_data.py
 ```
 
@@ -80,19 +81,22 @@ After wandb login, run the following command with multiple gpus:
 CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 train128_cal3.py
 ```
 
+The training takes about 1-2 days.
+
 ### Test
 
 Run the following command:
 
 ```
+mkdir our_result
 python predict.py
 ```
 
-The result is in `./our_result/`.
+The simulated measurements and predicted volume results are in `./our_result/`.
 
 ## Apply to Your Device
 
-For specific real-world device, the ray trace information used for resample process in training and testing need to be precomputed before the training.
+For specific real-world device, the ray trace information used for resample process in training and testing need to be precomputed before training.
 
 Take camera-projector device for example, with calibrated camera and projector(also see calibration algorithm in supplementary material of our paper), run the following code:
 
@@ -102,8 +106,8 @@ Take camera-projector device for example, with calibrated camera and projector(a
 ./gen_ray_trace_info/cal_ray_trace_info.py
 ```
 
-The camera and projector calibration information of ours is provided in `./ray_trace_info/intrinsic_proj_cam_42000.yml`. 
+The camera and projector calibration parameters of ours are provided in `./ray_trace_info/intrinsic_proj_cam_42000.yml`. 
 
-The volume location with respect to the projector in line 106 of `./gen_ray_trace_info/raysample_kdtree.py` is roughly estimated from real scene. The `hmin` and `hmax` parameter in `./gen_ray_trace_info/raysample_rescale.py` and  `./gen_ray_trace_info/raysample_rescale_subprocess.py` is roughly estimated from the volume location in the real photos taken by the camera. The `cpunum` parameter in `./gen_ray_trace_info/raysample_rescale_subprocess.py` and `./gen_ray_trace_info/raysample_kdtree_subprocess.py` is decided by the number of cpu in your machine.
+The volume location with respect to the projector in line 106 of `./gen_ray_trace_info/raysample_kdtree.py` is roughly estimated from real scene. The `hmin` and `hmax` parameter in `./gen_ray_trace_info/raysample_rescale.py` and  `./gen_ray_trace_info/raysample_rescale_subprocess.py` is roughly estimated from the 2D location of volume projection in real camera photos. The `cpunum` parameter in `./gen_ray_trace_info/raysample_rescale_subprocess.py` and `./gen_ray_trace_info/raysample_kdtree_subprocess.py` is decided by the number of cpus in your machine.
 
-It takes about 2 hour to finish the precomputation.
+It takes about 2 hours to finish the precomputation.
