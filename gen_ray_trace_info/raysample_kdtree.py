@@ -182,13 +182,16 @@ def cal_dist(x,y):
 ANN_tree = AnnoyIndex(3, 'angular')
 ANN_tree.load(path+'ANN_tree'+str(camid)+'.ann') 
 
+# use sparse maxtrix to store the ray trace info.
 wlist=[]
 hlist=[]
 xlist=[]
 ylist=[]
 zlist=[]
 valuelist=[]
+# cosine threshold for hit or not hit the voxel
 threshold = cal_dist(origin-np.asarray([48,0,0]),origin-np.asarray([48,step/2,step/2]))
+# the diag of a single voxel
 diag=step*0.5*np.sqrt(3)
 n = size*2
 search_k = 4096
@@ -197,14 +200,14 @@ for w in range(wstart,wend):
     # w=0-1080
     for h in range(hstart,hend):
         # h=0-1440
-        tempxyzlist=[]
-        tempxyzid=[]
+        # random sample in pixel
         rand_s = np.random.rand(sample_num, 2)
         delta = rand_s
         x_0, y_0 = np.array([h, w], dtype=np.float32)
         dir = np.asarray([[x_0, y_0, 1,1]]).repeat(sample_num,axis=0)
         dir[:,:2] += delta
 
+        # get the ray direction from camera matrix
         temp=dir[:,:2].reshape(sample_num*2).reshape(sample_num,2)
         dir[:,:2] = cv.undistortPoints(temp, camera_matrix, dist_cam).reshape(sample_num,2)
         dir_rot=(cam2vol@dir.T).T
@@ -214,12 +217,15 @@ for w in range(wstart,wend):
         tempxyzlist=[]
         tempxyzid=[]
         for s in range(sample_num):
+            # check k closest ray direction in ANN tree
             index, dist = ANN_tree.get_nns_by_vector(dir[s]/np.linalg.norm(dir[s]), n, search_k, include_distances=True)
             distnp=np.asarray(dist)
             cosdist=np.sqrt(1-distnp*distnp)
             sindist=distnp
             for i in range(len(dist)):
                 if(cosdist[i]>threshold):
+                    # if hit, calculate the weight
+                    # weight: length of intersection with the voxel, assuming voxel is sphere
                     idx=cal_index(index[i],size,size,size)
                     zvalue=idx[2]*step-end/2-origin[0,2]
                     weight=zvalue*sindist[i]
