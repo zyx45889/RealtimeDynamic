@@ -126,10 +126,9 @@ class MyDecoder(nn.Module):
         self.ray_trace_info=self.init_mapping(density_shape)
         self.pattern_coo=self.init_patterncoo(density_shape)
         self.light_info=self.init_light(density_shape)
-        
+
+        # conditionally embed local incident light information into input
         self.cond_num1=density_shape[2]*self.patternnum
-        self.cond_num3=density_shape[2]
-        self.cond3=None
 
         feature1=[self.patternnum+self.cond_num1,384,192,192,density_shape[2]]
         self.decoder1=mlp_block(feature1[0],feature1[-1],0,feature1)
@@ -159,7 +158,8 @@ class MyDecoder(nn.Module):
         temp=torch.load("./ray_trace_info/light_20_sample.tsr")
         temp=temp/temp.max()
         return temp.to(device=self.device)
-    
+
+    # conditionally embed local incident light information into input
     def cal_cond_idealA(self,id,lightpattern,density_shape,batchsize):
         patternnum=lightpattern.shape[0]
         ray_trace_info=self.pattern_coo[id]
@@ -177,16 +177,6 @@ class MyDecoder(nn.Module):
         # hwz x patternum
         return ret
 
-    def cal_cond_zonehot(self,density_shape,batchsize):
-        if self.cond3==None:
-            z_cond=torch.eye((density_shape[2]),dtype=torch.float32,requires_grad=True).cuda(self.device)
-            z_cond=z_cond.view(1,density_shape[2],density_shape[2])
-            self.cond3=z_cond.to(device=self.device)
-        
-        ret=self.cond3.expand(batchsize,density_shape[0],density_shape[1],density_shape[2],density_shape[2])
-
-        return ret
-
     def forward(self,measurement,lightpattern):
         batchsize=measurement.shape[0]
         density_shape=self.density_shape
@@ -198,18 +188,21 @@ class MyDecoder(nn.Module):
         x1=x1.permute(0,2,3,1)
         # x1: B x X x Y x patternnum
         x1_cond=self.cal_cond_idealA(0,lightpattern,density_shape,batchsize)
+        # x1: B x X x Y x (patternnum + cond_num)
         x1_input=torch.cat([x1,x1_cond],dim=3)
 
         x2=x[:,:,1,:,:]
         x2=x2.permute(0,2,3,1)
         # x2: B x X x Y x patternnum
         x2_cond=self.cal_cond_idealA(1,lightpattern,density_shape,batchsize)
+        # x2: B x X x Y x (patternnum + cond_num)
         x2_input=torch.cat([x2,x2_cond],dim=3)
 
         x3=x[:,:,2,:,:]
         x3=x3.permute(0,2,3,1)
         # x3: B x X x Y x patternnum
         x3_cond=self.cal_cond_idealA(2,lightpattern,density_shape,batchsize)
+        # x3: B x X x Y x (patternnum + cond_num)
         x3_input=torch.cat([x3,x3_cond],dim=3)
 
         # send to decoder
@@ -220,21 +213,21 @@ class MyDecoder(nn.Module):
         y2_beforerot=y123[batchsize:batchsize*2,:,:,:]  
         y3_beforerot=y123[batchsize*2:batchsize*3,:,:,:]
 
-        # resample result from cam3 to volume
+        # resample result from cam3 to global volume
         mapping3to3=self.pattern_coo[2].permute(1,0)
         y3_beforerot=y3_beforerot.permute(1,2,3,0)
         y3_beforerot=y3_beforerot.view(density_shape[0]*density_shape[1]*density_shape[2],batchsize)
         y3=torch.matmul(mapping3to3,y3_beforerot).view(*density_shape,batchsize)
         y3=y3.permute(3,0,1,2)
 
-        # resample result from cam2 to volume
+        # resample result from cam2 to global volume
         mapping3to3=self.pattern_coo[1].permute(1,0)
         y2_beforerot=y2_beforerot.permute(1,2,3,0)
         y2_beforerot=y2_beforerot.view(density_shape[0]*density_shape[1]*density_shape[2],batchsize)
         y2=torch.matmul(mapping3to3,y2_beforerot).view(*density_shape,batchsize)
         y2=y2.permute(3,0,1,2)
 
-        # resample result from cam1 to volume
+        # resample result from cam1 to global volume
         mapping3to3=self.pattern_coo[0].permute(1,0)
         y1_beforerot=y1_beforerot.permute(1,2,3,0)
         y1_beforerot=y1_beforerot.view(density_shape[0]*density_shape[1]*density_shape[2],batchsize)
