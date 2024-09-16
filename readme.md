@@ -78,7 +78,7 @@ Download our precompute raytrace information and put it into folder './ray_trace
 After wandb login, run the following command with multiple gpus:
 
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 train128_cal3.py
+CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 train.py
 ```
 
 The training takes about 1-2 days.
