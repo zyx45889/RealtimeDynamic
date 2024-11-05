@@ -66,7 +66,7 @@ def save_data(filename,density):
 def predict_net(encoder,decoder,device):
     batch_size=1
     filename=dataname
-    valid_datasets,scaler = read_data_predict(filename)
+    valid_datasets = read_data_predict(filename)
     n_valid=valid_datasets.shape[0]
     print("data loaded")
 
